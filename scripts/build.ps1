@@ -13,9 +13,9 @@
 
     Executes the default build for Cmder; Conemu, clink. This is equivalent to the "minimum" style package in the releases
 .EXAMPLE
-    .\build.ps1 -Full
+    .\build.ps1 -Compile
 
-    Executes a full build for Cmder, including git. This is equivalent to the "full" style package in the releases
+    Recompile the launcher executable if you have the requisite build tools for C++ installed.
 .EXAMPLE
     .\build -verbose
 
@@ -29,7 +29,7 @@
     Samuel Vasko, Jack Bennett
     Part of the Cmder project.
 .LINK
-    https://github.com/bliker/cmder - Project Home
+    http://cmder.net/ - Project Home
 #>
 [CmdletBinding(SupportsShouldProcess=$true)]
 Param(
@@ -49,8 +49,8 @@ Param(
     # Config folder location
     [string]$config = "..\config",
 
-    # Include git with the package build
-    [switch]$Full
+    # New launcher if you have MSBuild tools installed
+    [switch]$Compile
 )
 
 . "$PSScriptRoot\utils.ps1"
@@ -76,10 +76,6 @@ if ($config -ne "") {
 
 $vend = $pwd
 foreach ($s in $sources) {
-    if($Full -eq $false -and $s.name -eq "git-for-windows"){
-        Continue
-    }
-
     Write-Verbose "Getting $($s.name) from URL $($s.url)"
 
     # We do not care about the extensions/type of archive
@@ -105,8 +101,13 @@ if ($ConEmuXml -ne "") {
 
 Pop-Location
 
-Push-Location -Path $launcher
-msbuild CmderLauncher.vcxproj /p:configuration=Release
-Pop-Location
+if($Compile) {
+    Push-Location -Path $launcher
+    msbuild CmderLauncher.vcxproj /p:configuration=Release
+    Pop-Location
+} else {
+    Write-Warning "You are not building a launcher, Use -Compile"
+    Write-Warning "This cannot be a release. Test build only!"
+}
 
 Write-Verbose "All good and done!"

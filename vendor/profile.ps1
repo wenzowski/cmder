@@ -1,4 +1,10 @@
-﻿# Compatibility with PS major versions <= 2
+﻿# Init Script for PowerShell
+# Created as part of cmder project
+
+# !!! THIS FILE IS OVERWRITTEN WHEN CMDER IS UPDATED
+# !!! Use "%CMDER_ROOT%\config\user-profile.ps1" to add your own startup commands
+
+# Compatibility with PS major versions <= 2
 if(!$PSScriptRoot) {
     $PSScriptRoot = Split-Path $Script:MyInvocation.MyCommand.Path
 }
@@ -63,3 +69,13 @@ if (Test-Path Env:\CMDER_START) {
 
 # Enhance Path
 $env:Path = "$Env:CMDER_ROOT\bin;$env:Path;$Env:CMDER_ROOT"
+
+
+$CmderUserProfilePath = Join-Path $env:CMDER_ROOT "config/user-profile.ps1"
+if(Test-Path $CmderUserProfilePath) {
+    # Create this file and place your own command in there.
+    . "$CmderUserProfilePath"
+} else {
+    Write-Host "Creating user startup file: $CmderUserProfilePath"
+    "# Use this file to run your own startup commands" | Out-File $CmderUserProfilePath
+}
